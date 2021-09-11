@@ -23,45 +23,45 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     sceneView.delegate = self
     
     // Create Cube
-//    let cube = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.01)
+    //    let cube = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.01)
     
-//    // Create Sphere
-//    let sphere = SCNSphere(radius: 0.2)
-//
-//    // Create Material For Cub (red color)
-//    let material = SCNMaterial()
-//    material.diffuse.contents = UIImage(named: "art.scnassets/moon.jpeg")
-//    sphere.materials = [material]
-//
-//    // Create Node Scene For Position Of Cube
-//    let node = SCNNode()
-//    node.position = SCNVector3(0, 0.1, -0.5)
-//
-//    // Give Node Geometry Which Is The Cube
-//    node.geometry = sphere
-//
-//    // Add Node To SceneView
-//    sceneView.scene.rootNode.addChildNode(node)
+    //    // Create Sphere
+    //    let sphere = SCNSphere(radius: 0.2)
+    //
+    //    // Create Material For Cub (red color)
+    //    let material = SCNMaterial()
+    //    material.diffuse.contents = UIImage(named: "art.scnassets/moon.jpeg")
+    //    sphere.materials = [material]
+    //
+    //    // Create Node Scene For Position Of Cube
+    //    let node = SCNNode()
+    //    node.position = SCNVector3(0, 0.1, -0.5)
+    //
+    //    // Give Node Geometry Which Is The Cube
+    //    node.geometry = sphere
+    //
+    //    // Add Node To SceneView
+    //    sceneView.scene.rootNode.addChildNode(node)
     
     // Add Default Lighting To Scene
     sceneView.autoenablesDefaultLighting = true
     
     // Create New Scene With Die
-//    let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
-//
-//    if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
-//
-//      diceNode.position = SCNVector3(0, 0, -0.1)
-//
-//      sceneView.scene.rootNode.addChildNode(diceNode)
-//    }
+    //    let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
+    //
+    //    if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
+    //
+    //      diceNode.position = SCNVector3(0, 0, -0.1)
+    //
+    //      sceneView.scene.rootNode.addChildNode(diceNode)
+    //    }
     
     
     
-//    // Create a new scene
-//    let scene = SCNScene(named: "art.scnassets/ship.scn")!
-//
-
+    //    // Create a new scene
+    //    let scene = SCNScene(named: "art.scnassets/ship.scn")!
+    //
+    
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -84,6 +84,45 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // Pause the view's session
     sceneView.session.pause()
+  }
+  
+  // Add Delegate to Determine Touches in AR World
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    if let touch = touches.first {
+      let touchLocation = touch.location(in: sceneView)
+      
+      if let query = sceneView.raycastQuery(from: touchLocation, allowing: .existingPlaneGeometry, alignment: .any) {
+        let results = sceneView.session.raycast(query)
+        
+        if let hitResult = results.first {
+          //Create New Scene With Die
+          let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
+          
+          if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
+            
+            diceNode.position = SCNVector3(
+              hitResult.worldTransform.columns.3.x,
+              hitResult.worldTransform.columns.3.y + diceNode.boundingSphere.radius,
+              hitResult.worldTransform.columns.3.z
+            )
+            
+            sceneView.scene.rootNode.addChildNode(diceNode)
+            
+              // Creates a random number between 1 and 4 and multiply by half pi
+            let randomX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+            let randomZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+            
+            diceNode.runAction(
+              SCNAction.rotateBy(
+                x: CGFloat(randomX * 10),
+                y: 0,
+                z: CGFloat(randomZ * 10), //add more rotations in animation
+                duration: 0.5)
+            )
+          }
+        }
+      }
+    }
   }
   
   // Add Delegate for ARAnchor Plane Detection
@@ -120,3 +159,4 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   }
   
 }
+
