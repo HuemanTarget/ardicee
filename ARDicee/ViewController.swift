@@ -16,6 +16,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    // Setup Plane Debug
+    self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
+    
     // Set the view's delegate
     sceneView.delegate = self
     
@@ -44,14 +47,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     sceneView.autoenablesDefaultLighting = true
     
     // Create New Scene With Die
-    let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
-    
-    if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
-      
-      diceNode.position = SCNVector3(0, 0, -0.1)
-      
-      sceneView.scene.rootNode.addChildNode(diceNode)
-    }
+//    let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
+//
+//    if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
+//
+//      diceNode.position = SCNVector3(0, 0, -0.1)
+//
+//      sceneView.scene.rootNode.addChildNode(diceNode)
+//    }
     
     
     
@@ -68,6 +71,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // Create a session configuration
     let configuration = ARWorldTrackingConfiguration()
     
+    // Setup config for plane detection
+    configuration.planeDetection = .horizontal
+    
     // Run the view's session
     sceneView.session.run(configuration)
     
@@ -78,6 +84,39 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // Pause the view's session
     sceneView.session.pause()
+  }
+  
+  // Add Delegate for ARAnchor Plane Detection
+  func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+    if anchor is ARPlaneAnchor {
+      
+      // Set variable as ARPlaneAnchor
+      let planeAnchor = anchor as! ARPlaneAnchor
+      
+      // Set Plane Dimensions NOTE HEIGHT IS Z NOT Y
+      let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
+      
+      let planeNode =  SCNNode()
+      
+      // Set planeNode Position NOTE Y IS 0 BECAUSE ITS A FLAT SURFACE
+      planeNode.position = SCNVector3(planeAnchor.center.x, 0, planeAnchor.center.z)
+      
+      // planeNode is set Vertically So Need to roatate it clockwise Horizonatally NOTE Rotation Degree is in Radians (1 Radian = 180 degrees) and is defaulted to Counter Clockwise so -Float.pi/2 to rotate 90 degrees Clockwise
+      planeNode.transform = SCNMatrix4MakeRotation(-Float.pi/2, 1, 0, 0)
+      
+      let gridMaterial = SCNMaterial()
+      
+      gridMaterial.diffuse.contents = UIImage(named: "art.scnassets/grid.png")
+      
+      plane.materials = [gridMaterial]
+      
+      planeNode.geometry = plane
+      
+      node.addChildNode(planeNode)
+      
+    } else {
+      return
+    }
   }
   
 }
