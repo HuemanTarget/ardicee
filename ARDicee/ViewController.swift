@@ -22,32 +22,43 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // Create Cube
 //    let cube = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.01)
     
-    // Create Sphere
-    let sphere = SCNSphere(radius: 0.2)
-    
-    // Create Material For Cub (red color)
-    let material = SCNMaterial()
-    material.diffuse.contents = UIColor.red
-    sphere.materials = [material]
-    
-    // Create Node Scene For Position Of Cube
-    let node = SCNNode()
-    node.position = SCNVector3(0, 0.1, -0.5)
-    
-    // Give Node Geometry Which Is The Cube
-    node.geometry = cube
-    
-    // Add Node To SceneView
-    sceneView.scene.rootNode.addChildNode(node)
+//    // Create Sphere
+//    let sphere = SCNSphere(radius: 0.2)
+//
+//    // Create Material For Cub (red color)
+//    let material = SCNMaterial()
+//    material.diffuse.contents = UIImage(named: "art.scnassets/moon.jpeg")
+//    sphere.materials = [material]
+//
+//    // Create Node Scene For Position Of Cube
+//    let node = SCNNode()
+//    node.position = SCNVector3(0, 0.1, -0.5)
+//
+//    // Give Node Geometry Which Is The Cube
+//    node.geometry = sphere
+//
+//    // Add Node To SceneView
+//    sceneView.scene.rootNode.addChildNode(node)
     
     // Add Default Lighting To Scene
     sceneView.autoenablesDefaultLighting = true
     
+    // Create New Scene With Die
+    let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")
+    
+    if let diceNode = diceScene?.rootNode.childNode(withName: "Dice", recursively: true) {
+      
+      diceNode.position = SCNVector3(0, 0, -0.1)
+      
+      sceneView.scene.rootNode.addChildNode(diceNode)
+    }
+    
+    
+    
 //    // Create a new scene
 //    let scene = SCNScene(named: "art.scnassets/ship.scn")!
 //
-//    // Set the scene to the view
-//    sceneView.scene = scene
+
   }
   
   override func viewWillAppear(_ animated: Bool) {
